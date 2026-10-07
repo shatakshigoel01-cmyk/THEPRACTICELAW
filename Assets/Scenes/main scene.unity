@@ -5747,7 +5747,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'INCIDENT NIGHT
 
-    
+
 
     DATE: 14 OCTOBER
 
@@ -5756,65 +5756,65 @@ MonoBehaviour:
     LOCATION:
     NORTH WING
 
-    
+
 
     The incident was first reported late at night.
 
-    
+
 
     Security
     cameras recorded unusual movement
 
     around the north wing of the building.
 
-    
+
 
     At
     approximately 11:42 PM, the lights in the
 
     corridor suddenly went out.
 
-    
+
 
     A
     witness reported hearing a loud sound
 
     coming from inside the room.
 
-    
+
 
     The
     security system registered movement
 
     inside the building.
 
-    
 
-    No
-    one was seen leaving the building
+
+    No one was
+    seen leaving the building
 
     immediately after the incident.
 
-    
 
-    The
-    camera footage became unavailable
+
+    The camera
+    footage became unavailable
 
     for approximately three minutes.
 
-    
+
 
     When
     the system came back online,
 
     the corridor was empty.
 
-    
 
-    Further
-    investigation was required.
 
-    
+    Further investigation
+    was required.
+
+
 
     END OF REPORT'
   m_isRightToLeft: 0
@@ -9668,7 +9668,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'WITNESS FILES
 
-    
+
 
     CASE 001'
   m_isRightToLeft: 0
@@ -10396,7 +10396,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 9452ae1262a74094f8a68013fbcd1834, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
