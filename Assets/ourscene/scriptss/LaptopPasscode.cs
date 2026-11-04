@@ -1,3 +1,4 @@
+
 using UnityEngine;
 using TMPro;
 
@@ -6,15 +7,17 @@ public class LaptopPasscode : MonoBehaviour
     public TMP_Text passcodeText;
     public GameObject evidenceScreen;
 
-    string enteredCode = "";
-    string correctCode = "4729";
+    private string enteredCode = "";
+    private string correctCode = "4729";
 
-    public void EnterNumber(string number)
+    public void EnterNumber(int number)
     {
+        Debug.Log("Laptop button pressed: " + number);
+
         if (enteredCode.Length >= 4)
             return;
 
-        enteredCode += number;
+        enteredCode += number.ToString();
         passcodeText.text = enteredCode;
 
         if (enteredCode.Length == 4)
@@ -23,30 +26,34 @@ public class LaptopPasscode : MonoBehaviour
         }
     }
 
-    void CheckCode()
+    public void ClearCode()
+    {
+        enteredCode = "";
+        passcodeText.text = "ENTER PASSCODE";
+    }
+
+    private void CheckCode()
     {
         if (enteredCode == correctCode)
         {
             passcodeText.text = "ACCESS GRANTED";
-
             Invoke(nameof(ShowEvidence), 1.5f);
         }
         else
         {
             passcodeText.text = "WRONG PASSCODE";
-            Invoke(nameof(ResetCode), 1.5f);
+            Invoke(nameof(ClearCode), 1.5f);
         }
     }
 
-    void ShowEvidence()
+    private void ShowEvidence()
     {
-        passcodeText.gameObject.SetActive(false);
-        evidenceScreen.SetActive(true);
-    }
+        if (passcodeText != null)
+            passcodeText.gameObject.SetActive(false);
 
-    void ResetCode()
-    {
-        enteredCode = "";
-        passcodeText.text = "ENTER PASSCODE";
+        if (evidenceScreen != null)
+            evidenceScreen.SetActive(true);
+        else
+            Debug.LogError("Evidence Screen is not assigned!");
     }
 }
