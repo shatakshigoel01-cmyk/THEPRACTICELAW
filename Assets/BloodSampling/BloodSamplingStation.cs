@@ -10,7 +10,9 @@ public class BloodSamplingStation : MonoBehaviour
     [Header("References")]
     [SerializeField] private GameObject panel;
     [SerializeField] private TMP_Text titleText;
-    [SerializeField] private TMP_Text bodyText;
+    [SerializeField] private TMP_Text subtitleText;
+    [SerializeField] private GameObject instructionGroup;
+    [SerializeField] private GameObject completionGroup;
     [SerializeField] private TestTubeCollector collector;
 
     [Header("Distances (metres, measured across the floor)")]
@@ -18,17 +20,12 @@ public class BloodSamplingStation : MonoBehaviour
     [SerializeField] private float hideDistance = 2.2f;
 
     [Header("Instructions")]
-    [SerializeField] private string instructionTitle = "BLOOD SAMPLE COLLECTION";
-    [SerializeField, TextArea(4, 8)] private string instructionBody =
-        "Collect a blood sample from the crime scene.\n\n" +
-        "1. Grab the cotton swab.\n" +
-        "2. Touch the blood stain to collect a sample.\n" +
-        "3. Place the swab back inside the test tube.";
+    [SerializeField] private string instructionTitle = "BLOOD SAMPLING";
+    [SerializeField] private string instructionSubtitle = "COLLECT EVIDENCE";
 
     [Header("Completion")]
     [SerializeField] private string completionTitle = "BLOOD SAMPLE COLLECTED";
-    [SerializeField, TextArea(2, 4)] private string completionBody =
-        "The sample has been stored in the test tube.";
+    [SerializeField] private string completionSubtitle = "EVIDENCE STORED";
     [SerializeField] private float completionSeconds = 5f;
 
     private Transform head;
@@ -37,7 +34,8 @@ public class BloodSamplingStation : MonoBehaviour
 
     private void Awake()
     {
-        ShowInstructions(false);
+        ApplyContent(instructionTitle, instructionSubtitle, false);
+        panel.SetActive(false);
     }
 
     private void OnEnable()
@@ -74,24 +72,24 @@ public class BloodSamplingStation : MonoBehaviour
         float distance = offset.magnitude;
 
         if (!panel.activeSelf && distance <= showDistance)
-            ShowInstructions(true);
+            panel.SetActive(true);
         else if (panel.activeSelf && distance >= hideDistance)
-            ShowInstructions(false);
+            panel.SetActive(false);
     }
 
-    private void ShowInstructions(bool visible)
+    private void ApplyContent(string title, string subtitle, bool showCompletion)
     {
-        titleText.text = instructionTitle;
-        bodyText.text = instructionBody;
-        panel.SetActive(visible);
+        titleText.text = title;
+        subtitleText.text = subtitle;
+        instructionGroup.SetActive(!showCompletion);
+        completionGroup.SetActive(showCompletion);
     }
 
     private void OnSampleStored()
     {
         completed = true;
         hideCompletionAt = Time.time + completionSeconds;
-        titleText.text = completionTitle;
-        bodyText.text = completionBody;
+        ApplyContent(completionTitle, completionSubtitle, true);
         panel.SetActive(true);
     }
 }
