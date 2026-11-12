@@ -13,6 +13,28 @@ public class CCTVControls : MonoBehaviour
     public VideoPlayer videoPlayer;
     public Slider timeline;
 
+    [Tooltip("Playback speed of the recording (1 = normal).")]
+    [Range(0.25f, 4f)]
+    [SerializeField] private float playbackSpeed = 1f;
+
+    [Tooltip("Loop the recording instead of stopping at the end.")]
+    [SerializeField] private bool loopRecording = false;
+
+    [Header("Monitor (the recording plays here)")]
+    [Tooltip("The curved screen of the CCTV computer.")]
+    [SerializeField] private Renderer monitorScreen;
+
+    [Tooltip("Texture the video is drawn into. The monitor's material displays it.")]
+    [SerializeField] private RenderTexture monitorTexture;
+
+    [Tooltip("Shader texture slots on the monitor material that should show the recording.")]
+    [SerializeField] private string[] monitorTextureProperties = { "_BaseMap", "_MainTex", "_EmissionMap" };
+
+    [Header("Panel preview (static image, no video)")]
+    [SerializeField] private RawImage previewImage;
+    [Tooltip("Still CCTV image shown in the panel instead of the live video.")]
+    [SerializeField] private Texture previewStill;
+
     [Header("Panel")]
     [SerializeField] private GameObject panel;
     [SerializeField] private Button playButton;
@@ -50,8 +72,14 @@ public class CCTVControls : MonoBehaviour
     private double seekTarget;
     private float seekStartedAt;
 
-    private const double SeekTolerance = 0.5;
-    private const float SeekTimeout = 4f;
+    [Header("Seeking")]
+    [Tooltip("How close (seconds) a reported seek must land to the requested time to count as finished.")]
+    [SerializeField] private double SeekTolerance = 0.5;
+    [Tooltip("Give up waiting for a seek to be reported after this many seconds.")]
+    [SerializeField] private float SeekTimeout = 4f;
+
+    private bool hasPendingScrub;
+    private float pendingScrub;
     private int startSeconds;
     private int endSeconds;
 
@@ -63,10 +91,55 @@ public class CCTVControls : MonoBehaviour
         // The recording is evidence footage and must always play without sound.
         videoPlayer.audioOutputMode = VideoAudioOutputMode.None;
         videoPlayer.playOnAwake = false;
-        videoPlayer.isLooping = false;
+        videoPlayer.isLooping = loopRecording;
+        videoPlayer.playbackSpeed = playbackSpeed;
+
+        SetUpMonitor();
+        SetUpStaticPreview();
 
         if (panel != null)
             panel.SetActive(false);
+    }
+
+    private void OnValidate()
+    {
+        if (hideDistance < showDistance)
+            hideDistance = showDistance;
+    }
+
+    /// <summary>Draws the video only onto the computer's monitor.</summary>
+    private void SetUpMonitor()
+    {
+        if (monitorTexture == null)
+            monitorTexture = videoPlayer.targetTexture;
+
+        videoPlayer.renderMode = VideoRenderMode.RenderTexture;
+        videoPlayer.targetTexture = monitorTexture;
+
+        if (monitorScreen == null || monitorTexture == null)
+            return;
+
+        var block = new MaterialPropertyBlock();
+        monitorScreen.GetPropertyBlock(block);
+        Material material = monitorScreen.sharedMaterial;
+        foreach (string property in monitorTextureProperties)
+        {
+            if (material != null && material.HasProperty(property))
+                block.SetTexture(property, monitorTexture);
+        }
+        monitorScreen.SetPropertyBlock(block);
+    }
+
+    /// <summary>The panel shows a still image; the moving recording is only on the monitor.</summary>
+    private void SetUpStaticPreview()
+    {
+        if (previewImage == null)
+            return;
+
+        if (previewStill != null)
+            previewImage.texture = previewStill;
+        else if (previewImage.texture == monitorTexture)
+            previewImage.enabled = false;
     }
 
     private void Start()
@@ -81,6 +154,8 @@ public class CCTVControls : MonoBehaviour
             closeButton.onClick.AddListener(ClosePanel);
         videoPlayer.loopPointReached += OnRecordingFinished;
         videoPlayer.seekCompleted += OnSeekCompleted;
+        videoPlayer.prepareCompleted += OnPrepared;
+        videoPlayer.frameReady += OnFrameReady;
 
         // Pausing a prepared player shows the first frame on the monitor without playing it.
         videoPlayer.Pause();
@@ -182,7 +257,16 @@ public class CCTVControls : MonoBehaviour
     {
         // Only the player changes the slider with notifications; playback updates it silently.
         reachedEnd = false;
-        if (!videoPlayer.canSetTime || videoPlayer.length <= 0)
+        if (!videoPlayer.isPrepared || videoPlayer.length <= 0)
+        {
+            // Not loaded yet: remember where the player dragged to and jump there once it is.
+            hasPendingScrub = true;
+            pendingScrub = value;
+            videoPlayer.Prepare();
+            return;
+        }
+
+        if (!videoPlayer.canSetTime)
             return;
 
         BeginSeek(value * videoPlayer.length);
@@ -191,9 +275,30 @@ public class CCTVControls : MonoBehaviour
         if (!videoPlayer.isPlaying)
         {
             pauseAfterSeek = true;
+            // Stop on the first frame drawn at the new position, so the monitor matches the slider.
+            videoPlayer.sendFrameReadyEvents = true;
             videoPlayer.Play();
         }
         RefreshLabels();
+    }
+
+    private void OnFrameReady(VideoPlayer source, long frameIndex)
+    {
+        if (!pauseAfterSeek || source.frameRate <= 0)
+            return;
+
+        double frameTime = frameIndex / source.frameRate;
+        if (System.Math.Abs(frameTime - seekTarget) <= SeekTolerance)
+            FinishSeek();
+    }
+
+    private void OnPrepared(VideoPlayer source)
+    {
+        if (!hasPendingScrub)
+            return;
+
+        hasPendingScrub = false;
+        OnTimelineChanged(pendingScrub);
     }
 
     private void BeginSeek(double targetSeconds)
@@ -221,6 +326,11 @@ public class CCTVControls : MonoBehaviour
         {
             pauseAfterSeek = false;
             videoPlayer.Pause();
+            videoPlayer.sendFrameReadyEvents = false;
+
+            // Keep the slider and timestamp on the frame the monitor is actually showing.
+            if (videoPlayer.length > 0)
+                timeline.SetValueWithoutNotify((float)(videoPlayer.time / videoPlayer.length));
         }
         RefreshLabels();
     }
@@ -333,6 +443,8 @@ public class CCTVControls : MonoBehaviour
         {
             videoPlayer.loopPointReached -= OnRecordingFinished;
             videoPlayer.seekCompleted -= OnSeekCompleted;
+            videoPlayer.prepareCompleted -= OnPrepared;
+            videoPlayer.frameReady -= OnFrameReady;
         }
     }
 }
