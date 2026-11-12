@@ -27136,7 +27136,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 2800000, guid: e5c713c6df7fdfe4c95a00659747e0a6, type: 3}
+  m_Texture: {fileID: 8400000, guid: dad65b2950117404d98432bdd8a21c32, type: 2}
   m_UVRect:
     serializedVersion: 2
     x: 0
@@ -28027,17 +28027,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WristwatchInspection
   panel: {fileID: 1967053191}
   confirmButton: {fileID: 2128330700}
-  confirmLabel: {fileID: 1927665694}
-  confirmChevron: {fileID: 1134614711}
-  confirmationMessage: {fileID: 528808348}
-  closeButton: {fileID: 736115595}
+  confirmLabel: {fileID: 1499100037}
+  confirmChevron: {fileID: 1402404336}
+  confirmationMessage: {fileID: 1979603514}
+  closeButton: {fileID: 968693576}
   confirmText: CONFIRM EVIDENCE
   confirmedText: EVIDENCE CONFIRMED
   confirmWithTrigger: 1
-  proximityAnchor: {fileID: 1523903309}
+  proximityAnchor: {fileID: 0}
   showDistance: 1.5
-  hideDistance: 1.7
-  ignoreHeight: 1
+  hideDistance: 1.9
   onEvidenceConfirmed:
     m_PersistentCalls:
       m_Calls: []
@@ -28328,11 +28327,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!4 &1523903309 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 3d771c85601bc4d40a3558209dc8735b, type: 3}
-  m_PrefabInstance: {fileID: 1523903296}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1524695044
 GameObject:
   m_ObjectHideFlags: 0
@@ -35423,25 +35417,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CCTVControls
   videoPlayer: {fileID: 1954737321}
   timeline: {fileID: 146114838}
-  playbackSpeed: 1
-  loopRecording: 0
-  monitorScreen: {fileID: 2109725696}
-  monitorTexture: {fileID: 8400000, guid: dad65b2950117404d98432bdd8a21c32, type: 2}
-  monitorTextureProperties:
-  - _BaseMap
-  - _MainTex
-  - _EmissionMap
-  previewImage: {fileID: 1464867725}
-  previewStill: {fileID: 2800000, guid: e5c713c6df7fdfe4c95a00659747e0a6, type: 3}
   panel: {fileID: 1083072805}
   playButton: {fileID: 428560000}
-  playLabel: {fileID: 1499100037}
+  playLabel: {fileID: 1424590837}
   closeButton: {fileID: 968693576}
-  timestampText: {fileID: 1141515338}
+  timestampText: {fileID: 1424590837}
   previewTimestampText: {fileID: 28989640}
-  hideWhileActive:
-  - {fileID: 1967053191}
-  workstation: {fileID: 837715732}
+  hideWhileActive: []
+  workstation: {fileID: 0}
   showDistance: 1.8
   hideDistance: 2.2
   autoPlayOnEnter: 1
@@ -35450,8 +35433,6 @@ MonoBehaviour:
   playText: PLAY RECORDING
   pauseText: PAUSE RECORDING
   replayText: PLAY RECORDING
-  SeekTolerance: 0.5
-  SeekTimeout: 4
 --- !u!328 &1954737321
 VideoPlayer:
   m_ObjectHideFlags: 0

@@ -27,20 +27,11 @@ public class WristwatchInspection : MonoBehaviour
     [Tooltip("Also confirm when the player pulls the trigger while holding the watch.")]
     [SerializeField] private bool confirmWithTrigger = true;
 
-    [Header("Proximity")]
-    [Tooltip("Distance is measured from this object (the watch's Band). If left empty, a child named \"Band\" is used, otherwise this object.")]
+    [Header("Proximity (metres, measured across the floor)")]
+    [Tooltip("Where distance is measured from. Defaults to the panel, which stays fixed near the watch.")]
     [SerializeField] private Transform proximityAnchor;
-
-    [Tooltip("The panel appears when the headset is this close to the Band (metres).")]
-    [Min(0.1f)]
     [SerializeField] private float showDistance = 1.5f;
-
-    [Tooltip("The panel hides once the headset is this far away (metres). Keep it a little above Show Distance so the panel does not flicker at the edge.")]
-    [Min(0.1f)]
-    [SerializeField] private float hideDistance = 1.7f;
-
-    [Tooltip("Measure across the floor only, so the player's height does not matter.")]
-    [SerializeField] private bool ignoreHeight = true;
+    [SerializeField] private float hideDistance = 1.9f;
 
     [Tooltip("Raised once when the wristwatch is confirmed as inspected.")]
     public UnityEvent onEvidenceConfirmed = new UnityEvent();
@@ -55,30 +46,8 @@ public class WristwatchInspection : MonoBehaviour
     private void Awake()
     {
         grab = GetComponent<XRGrabInteractable>();
-        if (proximityAnchor == null)
-            proximityAnchor = FindChildNamed(transform, "Band") ?? transform;
-
         RefreshConfirmState();
         panel.SetActive(false);
-    }
-
-    private void OnValidate()
-    {
-        if (hideDistance < showDistance)
-            hideDistance = showDistance;
-    }
-
-    /// <summary>Current distance from the headset to the Band, in metres (for debugging).</summary>
-    public float CurrentDistance { get; private set; }
-
-    private static Transform FindChildNamed(Transform root, string childName)
-    {
-        foreach (Transform child in root.GetComponentsInChildren<Transform>(true))
-        {
-            if (child != root && string.Equals(child.name, childName, System.StringComparison.OrdinalIgnoreCase))
-                return child;
-        }
-        return null;
     }
 
     private void OnEnable()
@@ -111,12 +80,10 @@ public class WristwatchInspection : MonoBehaviour
             head = mainCamera.transform;
         }
 
-        Transform anchor = proximityAnchor != null ? proximityAnchor : transform;
+        Transform anchor = proximityAnchor != null ? proximityAnchor : panel.transform;
         Vector3 offset = head.position - anchor.position;
-        if (ignoreHeight)
-            offset.y = 0f;
+        offset.y = 0f;
         float distance = offset.magnitude;
-        CurrentDistance = distance;
 
         // The gap between the two distances stops the panel flickering at the edge.
         if (!inRange && distance <= showDistance)
@@ -172,10 +139,8 @@ public class WristwatchInspection : MonoBehaviour
 
     private void RefreshConfirmState()
     {
-        if (confirmLabel != null)
-            confirmLabel.text = IsInspected ? confirmedText : confirmText;
-        if (confirmButton != null)
-            confirmButton.interactable = !IsInspected;
+        confirmLabel.text = IsInspected ? confirmedText : confirmText;
+        confirmButton.interactable = !IsInspected;
         if (confirmChevron != null)
             confirmChevron.SetActive(!IsInspected);
         if (confirmationMessage != null)
