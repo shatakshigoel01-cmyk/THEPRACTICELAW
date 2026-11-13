@@ -7,6 +7,7 @@ public class DrawerCharacterTrigger : MonoBehaviour
     public GameObject character;
     public AudioSource dialogue;
     public Animator animator;
+    public GameObject zoneVisual;
 
     private bool hasPlayed = false;
 
@@ -22,6 +23,10 @@ public class DrawerCharacterTrigger : MonoBehaviour
         if (other.CompareTag("MainCamera"))
         {
             hasPlayed = true;
+
+            if (zoneVisual != null)
+                zoneVisual.SetActive(false);
+
             StartCoroutine(PlayCharacterScene());
         }
     }
@@ -31,10 +36,10 @@ public class DrawerCharacterTrigger : MonoBehaviour
         character.SetActive(true);
 
         if (dialogue != null)
+        {
             dialogue.Play();
-
-        if (dialogue != null)
             yield return new WaitForSeconds(dialogue.clip.length);
+        }
 
         character.SetActive(false);
     }

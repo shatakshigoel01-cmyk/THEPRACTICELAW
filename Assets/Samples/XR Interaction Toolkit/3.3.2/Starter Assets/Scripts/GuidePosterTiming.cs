@@ -14,7 +14,7 @@ public class GuidePosterTiming : MonoBehaviour
 
         poster.SetActive(true);
 
-        yield return new WaitForSeconds(10f);
+        yield return new WaitForSeconds(20f);
 
         poster.SetActive(false);
     }
