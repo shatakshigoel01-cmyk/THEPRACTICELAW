@@ -9,13 +9,18 @@ public class PushButtonMovement : MonoBehaviour
     [Tooltip("Direction the button moves when pressed, in its parent's local space. The default keeps the original downward (-Y) behaviour.")]
     public Vector3 pressDirection = Vector3.down;
 
+    [Tooltip("The visible part that moves. Leave empty to move this object. Moving a separate visual keeps the poke collider still, so a resting finger does not flicker the press.")]
+    public Transform movingPart;
+
+    private Transform Target => movingPart != null ? movingPart : transform;
+
     private Vector3 originalPosition;
     private Vector3 pressedPosition;
     private bool isPressed = false;
 
     private void Start()
     {
-        originalPosition = transform.localPosition;
+        originalPosition = Target.localPosition;
 
         pressedPosition = originalPosition +
                          pressDirection.normalized * pressDistance;
@@ -39,8 +44,8 @@ public class PushButtonMovement : MonoBehaviour
             ? pressedPosition
             : originalPosition;
 
-        transform.localPosition = Vector3.Lerp(
-            transform.localPosition,
+        Target.localPosition = Vector3.Lerp(
+            Target.localPosition,
             targetPosition,
             Time.deltaTime * moveSpeed
         );
