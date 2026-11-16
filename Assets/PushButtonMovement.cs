@@ -6,6 +6,9 @@ public class PushButtonMovement : MonoBehaviour
     public float pressDistance = 0.04f;
     public float moveSpeed = 15f;
 
+    [Tooltip("Direction the button moves when pressed, in its parent's local space. The default keeps the original downward (-Y) behaviour.")]
+    public Vector3 pressDirection = Vector3.down;
+
     private Vector3 originalPosition;
     private Vector3 pressedPosition;
     private bool isPressed = false;
@@ -14,8 +17,8 @@ public class PushButtonMovement : MonoBehaviour
     {
         originalPosition = transform.localPosition;
 
-        pressedPosition = originalPosition -
-                         new Vector3(0f, pressDistance, 0f);
+        pressedPosition = originalPosition +
+                         pressDirection.normalized * pressDistance;
     }
 
     public void PressButton()

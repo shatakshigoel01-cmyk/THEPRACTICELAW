@@ -11,6 +11,7 @@ public class KnifeEvidenceFeedback : MonoBehaviour
 
     private XRGrabInteractable grab;
     private Coroutine fadeRoutine;
+    private bool voicePlayed;
 
     void Awake()
     {
@@ -37,8 +38,12 @@ public class KnifeEvidenceFeedback : MonoBehaviour
 
     void OnKnifePicked(SelectEnterEventArgs args)
     {
-        if (voice != null)
+        // The voice line plays on the first pick-up only; later grabs must not restart it.
+        if (voice != null && !voicePlayed)
+        {
+            voicePlayed = true;
             voice.Play();
+        }
 
         if (panel == null)
         {
