@@ -4,6 +4,7 @@ using UnityEngine.Events;
 using UnityEngine.UI;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
+using UnityEngine.XR.Interaction.Toolkit.Interactors;
 
 /// <summary>
 /// Shows the wristwatch inspection panel when the player approaches or picks up the watch,
@@ -90,7 +91,7 @@ public class WristwatchInspection : MonoBehaviour
         {
             inRange = true;
         }
-        else if (inRange && distance >= hideDistance && !grab.isSelected)
+        else if (inRange && distance >= hideDistance && !IsHeldByHand())
         {
             inRange = false;
             closedByPlayer = false;
@@ -101,8 +102,23 @@ public class WristwatchInspection : MonoBehaviour
             panel.SetActive(shouldShow);
     }
 
+    /// <summary>True while a hand holds the watch. A socket, such as the evidence board, does not count.</summary>
+    private bool IsHeldByHand()
+    {
+        foreach (var interactor in grab.interactorsSelecting)
+        {
+            if (!(interactor is XRSocketInteractor))
+                return true;
+        }
+        return false;
+    }
+
     private void OnGrabbed(SelectEnterEventArgs args)
     {
+        // Snapping into a socket (the evidence board) is not a pick-up, so it must not open the panel.
+        if (args.interactorObject is XRSocketInteractor)
+            return;
+
         // Picking the watch up always brings the panel back, even after it was closed.
         inRange = true;
         closedByPlayer = false;
